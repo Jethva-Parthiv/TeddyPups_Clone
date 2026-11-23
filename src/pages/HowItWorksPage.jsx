@@ -9,6 +9,20 @@ export default function HowItWorksPage() {
     window.scrollTo(0, 0);
   }, []);
 
+  // Smoothly scroll to a section, leaving room for the fixed header
+  const handleNavClick = (e, id) => {
+    e.preventDefault();
+    const target = document.getElementById(id);
+    if (!target) return;
+
+    const main = document.getElementById('main');
+    const headerOffset = main ? parseFloat(getComputedStyle(main).paddingTop) || 0 : 0;
+    const top = target.getBoundingClientRect().top + window.scrollY - headerOffset - 16;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    window.scrollTo({ top: Math.max(top, 0), behavior: reduceMotion ? 'auto' : 'smooth' });
+  };
+
   return (
     <main id="main" tabIndex="-1" className="relative pt-[var(--header-h)] outline-none">
     <div data-page="how" className="tp-page">
@@ -20,18 +34,18 @@ export default function HowItWorksPage() {
 Whether you choose to visit us locally or order a premium breed from overseas, TeddyPups is here to make the experience unforgettable.            </p>
           </header>
           <nav aria-label="On this page" className="mt-10 flex flex-wrap gap-2">
-            <Link to="/" className="chip h-11 border-2 border-cocoa !bg-milk px-4 hover:!bg-honey-soft">
+            <a href="#two-ways" onClick={(e) => handleNavClick(e, 'two-ways')} className="chip h-11 border-2 border-cocoa !bg-milk px-4 hover:!bg-honey-soft">
               <span className="font-plush text-toffee">1</span>
-Two ways home            </Link>
-            <Link to="/" className="chip h-11 border-2 border-cocoa !bg-milk px-4 hover:!bg-honey-soft">
+Two ways home            </a>
+            <a href="#promise" onClick={(e) => handleNavClick(e, 'promise')} className="chip h-11 border-2 border-cocoa !bg-milk px-4 hover:!bg-honey-soft">
               <span className="font-plush text-toffee">2</span>
-Our premium puppy promise            </Link>
-            <Link to="/" className="chip h-11 border-2 border-cocoa !bg-milk px-4 hover:!bg-honey-soft">
+Our premium puppy promise            </a>
+            <a href="#delivery" onClick={(e) => handleNavClick(e, 'delivery')} className="chip h-11 border-2 border-cocoa !bg-milk px-4 hover:!bg-honey-soft">
               <span className="font-plush text-toffee">3</span>
-Delivery & collection            </Link>
-            <Link to="/" className="chip h-11 border-2 border-cocoa !bg-milk px-4 hover:!bg-honey-soft">
+Delivery & collection            </a>
+            <a href="#why" onClick={(e) => handleNavClick(e, 'why')} className="chip h-11 border-2 border-cocoa !bg-milk px-4 hover:!bg-honey-soft">
               <span className="font-plush text-toffee">4</span>
-Why choose us            </Link>
+Why choose us            </a>
           </nav>
           <div id="two-ways">
             <section className="tp-journeys" aria-labelledby="two-ways-title">
@@ -208,7 +222,7 @@ Pick up your puppy from us or have them delivered to your home within Dubai. Our
                   </li>
                 </ol>
               </div>
-              <div role="tabpanel" id="panel-imported" aria-labelledby="tab-imported" className="tp-journey">
+              <div role="tabpanel" id="panel-imported" aria-labelledby="tab-imported" className="tp-journey" hidden={activeTab !== "imported"}>
                 <div className="tp-journey__head">
                   <div>
                     <h3 className="font-plush tp-journey__title">Order upon request</h3>
@@ -357,15 +371,15 @@ We safely deliver puppies to loving homes all around the world. Our trusted inte
               <div className="tp-flight">
                 <svg viewBox="0 0 660 300" role="img" aria-label="A plane flying puppies from Korea to Dubai">
                   <defs>
-                    <clippath id="_R_1albsnkivb_">
+                    <clipPath id="_R_1albsnkivb_">
                       <circle r="25" />
-                    </clippath>
+                    </clipPath>
                   </defs>
                   <path d="M40 250 C 170 40, 470 20, 620 168" className="tp-flight__route" />
                   <circle cx="40" cy="250" r="7" className="tp-flight__dot" />
                   <circle cx="620" cy="168" r="7" className="tp-flight__dot" />
-                  <text x="40" y="284" text-anchor="middle" className="tp-flight__label">Korea</text>
-                  <text x="620" y="202" text-anchor="middle" className="tp-flight__label">Dubai</text>
+                  <text x="40" y="284" textAnchor="middle" className="tp-flight__label">Korea</text>
+                  <text x="620" y="202" textAnchor="middle" className="tp-flight__label">Dubai</text>
                   <g transform="translate(410 70)">
                     <g transform="translate(-126 -78)">
                       <path d="M28 60 L8 26 L34 26 L60 54 Z" className="tp-flight__wing" />
