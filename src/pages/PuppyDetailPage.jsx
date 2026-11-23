@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, Link } from 'react-router-dom';
 import puppiesStoryData from '../data/puppiesStoryData.json';
+import StoryRibbon from '../components/StoryRibbon';
 
 export default function PuppyDetailPage() {
   const { slug } = useParams();
@@ -60,15 +62,45 @@ export default function PuppyDetailPage() {
 
   const currentPhoto = gallery[activePhoto] || gallery[0];
 
-  const handlePrev = (e) => {
+  const handlePrev = useCallback((e) => {
     e?.stopPropagation();
     setActivePhoto((prev) => (prev === 0 ? gallery.length - 1 : prev - 1));
-  };
+  }, [gallery.length]);
 
-  const handleNext = (e) => {
+  const handleNext = useCallback((e) => {
     e?.stopPropagation();
     setActivePhoto((prev) => (prev === gallery.length - 1 ? 0 : prev + 1));
+  }, [gallery.length]);
+
+  const [touchStartX, setTouchStartX] = useState(null);
+  const handleTouchStart = (e) => {
+    setTouchStartX(e.touches[0].clientX);
   };
+  const handleTouchEnd = (e) => {
+    if (touchStartX === null) return;
+    const diff = e.changedTouches[0].clientX - touchStartX;
+    if (diff < -50) handleNext();
+    else if (diff > 50) handlePrev();
+    setTouchStartX(null);
+  };
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowRight') handleNext();
+      if (e.key === 'ArrowLeft') handlePrev();
+      if (e.key === 'Escape') setLightboxOpen(false);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [lightboxOpen, handleNext, handlePrev]);
 
   const handleScrollToEnquire = (e) => {
     e.preventDefault();
@@ -96,12 +128,8 @@ export default function PuppyDetailPage() {
             background: puppy.bgStyle || "linear-gradient(180deg, color-mix(in oklab, #785838 24%, var(--color-milk)) 0, var(--color-milk) 85%)"
           }}
         >
-          {/* Top Decorative Ribbon */}
-          <div aria-hidden="true" className="tp-ribbon">
-            <div className="tp-ribbon__track">
-              <span className="tp-ribbon__band" style={{ transform: "scaleY(0)" }}></span>
-            </div>
-          </div>
+          {/* Top Decorative Scroll Ribbon */}
+          <StoryRibbon key={puppy.slug} />
 
           <div className="gutter mx-auto max-w-[110rem] pb-20 pt-8 md:pt-12">
             {/* Breadcrumb Navigation */}
@@ -143,6 +171,11 @@ export default function PuppyDetailPage() {
                         loading="eager"
                         sizes="(min-width: 1024px) 55vw, 92vw"
                         src={currentPhoto.src}
+                        onError={(e) => {
+                          if (currentPhoto.thumbSrc && e.currentTarget.src !== currentPhoto.thumbSrc) {
+                            e.currentTarget.src = currentPhoto.thumbSrc;
+                          }
+                        }}
                         style={currentPhoto.style || { position: "absolute", height: "100%", width: "100%", inset: 0, objectFit: "cover" }}
                       />
                       {currentPhoto.isVideo && (
@@ -555,50 +588,85 @@ export default function PuppyDetailPage() {
 
           </div>
 
-          {/* Lightbox Modal Dialog */}
-          {lightboxOpen && (
+          {/* Lightbox Modal Dialog matching original Teddypups */}
+          {lightboxOpen && createPortal(
             <div
               aria-label={`${puppy.title} photos`}
               role="dialog"
-              className="fixed inset-0 z-[120] flex items-center justify-center bg-cocoa/95 p-4 text-milk backdrop:bg-cocoa/70"
-              onClick={() => setLightboxOpen(false)}
+              aria-modal="true"
+              className="fixed inset-0 z-[99999] flex h-dvh w-screen flex-col justify-between bg-cocoa/95 p-0 text-milk backdrop:bg-cocoa/70 select-none overflow-hidden"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) setLightboxOpen(false);
+              }}
+              data-lenis-prevent="true"
             >
-              <button
-                type="button"
-                onClick={() => setLightboxOpen(false)}
-                className="absolute right-6 top-6 h-11 rounded-full bg-milk px-5 font-semibold text-cocoa hover:bg-honey transition-colors"
-              >
-                Close
-              </button>
-              <div
-                className="relative max-h-[85vh] max-w-[90vw] overflow-hidden rounded-2xl"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <img
-                  src={currentPhoto.src}
-                  alt={currentPhoto.alt || puppy.title}
-                  className="max-h-[85vh] max-w-[90vw] object-contain rounded-xl"
-                />
+              {/* Top Bar: Puppy title / photo count on left, Close button on right */}
+              <div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-6">
+                <p className="font-scrawl text-lg text-milk">
+                  {puppy.title}, {currentPhoto.isVideo ? 'video' : 'photo'} {activePhoto + 1} of {gallery.length}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setLightboxOpen(false)}
+                  className="h-11 rounded-full bg-milk px-5 font-semibold text-cocoa transition-colors hover:bg-honey"
+                >
+                  Close
+                </button>
               </div>
+
+              {/* Center Media Area: clean view with no round arrows blocking photo */}
+              <div
+                className="relative flex flex-1 items-center justify-center overflow-hidden p-2 sm:p-4 touch-pan-y"
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) setLightboxOpen(false);
+                }}
+              >
+                {currentPhoto.isVideo ? (
+                  <video
+                    src={currentPhoto.src}
+                    poster={currentPhoto.thumbSrc}
+                    controls
+                    autoPlay
+                    playsInline
+                    className="size-full max-h-[75vh] md:max-h-[80vh] object-contain"
+                  />
+                ) : (
+                  <img
+                    src={currentPhoto.src}
+                    alt={currentPhoto.alt || puppy.title}
+                    className="size-full max-h-[75vh] md:max-h-[80vh] object-contain"
+                    onError={(e) => {
+                      if (currentPhoto.thumbSrc && e.currentTarget.src !== currentPhoto.thumbSrc) {
+                        e.currentTarget.src = currentPhoto.thumbSrc;
+                      }
+                    }}
+                  />
+                )}
+              </div>
+
+              {/* Bottom Bar: Previous and Next Controls */}
               {gallery.length > 1 && (
-                <div className="absolute inset-x-8 top-1/2 flex -translate-y-1/2 justify-between pointer-events-none">
+                <div className="flex justify-center gap-3 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3">
                   <button
                     type="button"
-                    className="grid size-12 place-items-center rounded-full border-2 border-cocoa bg-milk/95 text-xl font-bold text-cocoa pointer-events-auto hover:scale-105 active:scale-95"
                     onClick={handlePrev}
+                    className="h-12 rounded-full border-2 border-milk px-6 font-semibold text-milk transition-transform hover:bg-milk/10 active:scale-95"
                   >
-                    ‹
+                    Previous
                   </button>
                   <button
                     type="button"
-                    className="grid size-12 place-items-center rounded-full border-2 border-cocoa bg-milk/95 text-xl font-bold text-cocoa pointer-events-auto hover:scale-105 active:scale-95"
                     onClick={handleNext}
+                    className="h-12 rounded-full bg-honey px-6 font-semibold text-cocoa transition-transform hover:bg-honey/90 active:scale-95"
                   >
-                    ›
+                    Next
                   </button>
                 </div>
               )}
-            </div>
+            </div>,
+            document.body
           )}
         </article>
       </div>
