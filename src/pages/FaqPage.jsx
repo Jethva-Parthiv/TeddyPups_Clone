@@ -1,6 +1,75 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+const FAQS = [
+  {
+    id: '2bcfc70e-8c06-475d-aa8a-2b64932d30cc',
+    q: 'Are your puppies vaccinated and health-checked?',
+    a: 'Yes. All our puppies come with a verified health certificate from licensed vets. Every puppy is vaccinated, dewormed, and thoroughly checked before joining your family.',
+  },
+  {
+    id: '45fb5252-c038-41c7-afae-c8478b8f4f76',
+    q: 'Can I meet a puppy before I decide?',
+    a: 'Yes. Come meet our locally available puppies in our Downtown Dubai showroom and spend time bonding before making your decision.',
+  },
+  {
+    id: '9585fb34-9d0d-4ee3-a903-38442633135d',
+    q: 'Can I take my puppy home the same day?',
+    a: 'Local puppies are available immediately, so you can take your puppy home the same day.',
+  },
+  {
+    id: 'bd85389d-2116-4c4b-8500-0a5a82cae22c',
+    q: 'Do you import puppies from abroad?',
+    a: 'Yes. Through our Order Upon Request service we source rare and premium teacup breeds from the most reputable, certified breeders across Europe, Korea, and beyond — and we handle the import for you.',
+  },
+  {
+    id: '9c865c5e-bd1e-4bd3-9c09-cf193923123e',
+    q: 'How does an imported puppy travel to Dubai?',
+    a: 'We manage every part of the import process, including health checks, travel arrangements, and the necessary documentation, so your puppy arrives happy, healthy, and stress-free.',
+  },
+  {
+    id: '18483536-4415-4cc9-8ef8-913421f9da89',
+    q: 'Will I see photos and health details first?',
+    a: 'Yes. Photos, videos, and health certificates are shared before your puppy travels, and our team sends real photos and health details directly on WhatsApp.',
+  },
+  {
+    id: '653f64ec-6e3a-4e3a-b4ab-8862b96fd123',
+    q: 'Do you deliver?',
+    a: 'Yes. We deliver within Dubai, and our trusted international cargo partners deliver puppies safely to loving homes all around the world.',
+  },
+  {
+    id: 'c7990450-8c87-47f5-9ebe-1490c7f47ffa',
+    q: 'Which breeds do you usually have?',
+    a: 'Breeds we regularly have include Maltipoo, Pomeranian, Poodle and Bichon, plus rare teacup lines such as Korean teacup poodles, Maltese, Pom and Yorkie.',
+  },
+  {
+    id: '67b95211-ac7c-4582-a684-90fcd4e00812',
+    q: 'Is there help after my puppy comes home?',
+    a: 'Yes. Our team is available 24/7 and offers advice on training, nutrition, and general care to ensure a smooth transition for you and your new furry friend.',
+  },
+];
+
+// Tilt and pin colour are assigned by the note's position in the visible list
+const TILTS = ['-1.6deg', '1.2deg', '-0.8deg', '1.8deg', '-1.2deg', '0.7deg', '-1.9deg', '1.4deg', '-1.6deg'];
+const PINS = ['var(--color-toffee)', 'var(--color-sky-deep)', '#d9a13c', '#c45a6a'];
+
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const includesQuery = (text, q) => text.toLowerCase().includes(q.toLowerCase());
+
+// Wraps every match of the query inside the text with a highlight
+const highlight = (text, q) => {
+  if (!q) return text;
+  const parts = text.split(new RegExp('(' + escapeRegExp(q) + ')', 'gi'));
+  return parts.map((part, i) =>
+    i % 2 === 1 ? (
+      <mark key={i} style={{ background: 'rgba(244, 177, 66, 0.55)', color: 'inherit', borderRadius: '0.2em', padding: '0 0.05em' }}>{part}</mark>
+    ) : (
+      part
+    )
+  );
+};
+
 export default function FaqPage() {
   const [openIds, setOpenIds] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
@@ -10,14 +79,40 @@ export default function FaqPage() {
     window.scrollTo(0, 0);
   }, []);
 
+  const query = searchQuery.trim();
+
+  // Notes whose question or answer contains the search text
+  const visibleFaqs = query
+    ? FAQS.filter((item) => includesQuery(item.q, query) || includesQuery(item.a, query))
+    : FAQS;
+
+  // Only one note open at a time: opening one closes the others, clicking an open one closes it
   const toggleNote = (id) => {
-    setOpenIds(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
+    setOpenIds((prev) => (prev[id] ? {} : { [id]: true }));
   };
 
-  const hasAnyOpen = Object.values(openIds).some(Boolean);
+  // While searching, notes whose answer contains the text unfold automatically
+  // so the highlighted match is visible; title-only matches stay folded.
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    const q = value.trim();
+    setSearchQuery(value);
+    if (!q) {
+      setOpenIds({});
+      return;
+    }
+    const next = {};
+    FAQS.forEach((item) => {
+      if (includesQuery(item.a, q)) next[item.id] = true;
+    });
+    setOpenIds(next);
+  };
+
+  const hasAnyOpen = visibleFaqs.some((item) => openIds[item.id]);
+
+  const countLabel = query
+    ? visibleFaqs.length + (visibleFaqs.length === 1 ? ' note found' : ' notes found')
+    : FAQS.length + ' notes on the board';
 
   return (
     <main id="main" tabIndex="-1" className="relative pt-[var(--header-h)] outline-none">
@@ -39,9 +134,9 @@ Can't find what you're looking for? Message us on WhatsApp — our team is avail
                     <circle cx="10.5" cy="10.5" r="6.5" />
                     <path d="m15.5 15.5 5 5" />
                   </svg>
-                  <input id="_R_4pbsnkivb_" type="search" placeholder="delivery, Korea, vaccinated…" autoComplete="off" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                  <input id="_R_4pbsnkivb_" type="search" placeholder="delivery, Korea, vaccinated…" autoComplete="off" value={searchQuery} onChange={handleSearchChange} />
                 </div>
-                <p className="tp-notes__count" aria-live="polite">9 notes on the board</p>
+                <p className="tp-notes__count" aria-live="polite">{countLabel}</p>
                 <div className="tp-notes__teddy">
                   <span aria-hidden="true" className="tp-notes__bubble font-plush">
                     <span className="tp-notes__q">?</span>
@@ -130,141 +225,31 @@ Can't find what you're looking for? Message us on WhatsApp — our team is avail
               </aside>
               <div className="tp-notes__board">
                 <ul className="tp-notes__list">
-                  <li className="tp-note" data-reveal="true" {...(openIds["2bcfc70e-8c06-475d-aa8a-2b64932d30cc"] ? { "data-unfolded": "" } : {})} style={{"--tilt": "-1.6deg", "--pin": "var(--color-toffee)", "--i": "0"}}>
-                    <span aria-hidden="true" className="tp-note__pin"></span>
-                    <h2 className="tp-note__q">
-                      <button type="button" id="q-2bcfc70e-8c06-475d-aa8a-2b64932d30cc" aria-expanded={openIds["2bcfc70e-8c06-475d-aa8a-2b64932d30cc"] ? "true" : "false"} aria-controls="a-2bcfc70e-8c06-475d-aa8a-2b64932d30cc" onClick={() => toggleNote("2bcfc70e-8c06-475d-aa8a-2b64932d30cc")}>
-                        <span className="font-plush-text">Are your puppies vaccinated and health-checked?</span>
-                        <span aria-hidden="true" className="tp-note__chevron"></span>
-                      </button>
-                    </h2>
-                    <div id="a-2bcfc70e-8c06-475d-aa8a-2b64932d30cc" role="region" aria-labelledby="q-2bcfc70e-8c06-475d-aa8a-2b64932d30cc" className="tp-note__answer" inert="">
-                      <div className="tp-note__flap">
-                        <p>
-Yes. All our puppies come with a verified health certificate from licensed vets. Every puppy is vaccinated, dewormed, and thoroughly checked before joining your family.                        </p>
-                      </div>
-                    </div>
-                  </li>
-                  <li className="tp-note" data-reveal="true" {...(openIds["45fb5252-c038-41c7-afae-c8478b8f4f76"] ? { "data-unfolded": "" } : {})} style={{"--tilt": "1.2deg", "--pin": "var(--color-sky-deep)", "--i": "1"}}>
-                    <span aria-hidden="true" className="tp-note__pin"></span>
-                    <h2 className="tp-note__q">
-                      <button type="button" id="q-45fb5252-c038-41c7-afae-c8478b8f4f76" aria-expanded={openIds["45fb5252-c038-41c7-afae-c8478b8f4f76"] ? "true" : "false"} aria-controls="a-45fb5252-c038-41c7-afae-c8478b8f4f76" onClick={() => toggleNote("45fb5252-c038-41c7-afae-c8478b8f4f76")}>
-                        <span className="font-plush-text">Can I meet a puppy before I decide?</span>
-                        <span aria-hidden="true" className="tp-note__chevron"></span>
-                      </button>
-                    </h2>
-                    <div id="a-45fb5252-c038-41c7-afae-c8478b8f4f76" role="region" aria-labelledby="q-45fb5252-c038-41c7-afae-c8478b8f4f76" className="tp-note__answer" inert="">
-                      <div className="tp-note__flap">
-                        <p>
-Yes. Come meet our locally available puppies in our Downtown Dubai showroom and spend time bonding before making your decision.                        </p>
-                      </div>
-                    </div>
-                  </li>
-                  <li className="tp-note" data-reveal="true" {...(openIds["9585fb34-9d0d-4ee3-a903-38442633135d"] ? { "data-unfolded": "" } : {})} style={{"--tilt": "-0.8deg", "--pin": "#d9a13c", "--i": "2"}}>
-                    <span aria-hidden="true" className="tp-note__pin"></span>
-                    <h2 className="tp-note__q">
-                      <button type="button" id="q-9585fb34-9d0d-4ee3-a903-38442633135d" aria-expanded={openIds["9585fb34-9d0d-4ee3-a903-38442633135d"] ? "true" : "false"} aria-controls="a-9585fb34-9d0d-4ee3-a903-38442633135d" onClick={() => toggleNote("9585fb34-9d0d-4ee3-a903-38442633135d")}>
-                        <span className="font-plush-text">Can I take my puppy home the same day?</span>
-                        <span aria-hidden="true" className="tp-note__chevron"></span>
-                      </button>
-                    </h2>
-                    <div id="a-9585fb34-9d0d-4ee3-a903-38442633135d" role="region" aria-labelledby="q-9585fb34-9d0d-4ee3-a903-38442633135d" className="tp-note__answer" inert="">
-                      <div className="tp-note__flap">
-                        <p>
-Local puppies are available immediately, so you can take your puppy home the same day.                        </p>
-                      </div>
-                    </div>
-                  </li>
-                  <li className="tp-note" data-reveal="true" {...(openIds["bd85389d-2116-4c4b-8500-0a5a82cae22c"] ? { "data-unfolded": "" } : {})} style={{"--tilt": "1.8deg", "--pin": "#c45a6a", "--i": "3"}}>
-                    <span aria-hidden="true" className="tp-note__pin"></span>
-                    <h2 className="tp-note__q">
-                      <button type="button" id="q-bd85389d-2116-4c4b-8500-0a5a82cae22c" aria-expanded={openIds["bd85389d-2116-4c4b-8500-0a5a82cae22c"] ? "true" : "false"} aria-controls="a-bd85389d-2116-4c4b-8500-0a5a82cae22c" onClick={() => toggleNote("bd85389d-2116-4c4b-8500-0a5a82cae22c")}>
-                        <span className="font-plush-text">Do you import puppies from abroad?</span>
-                        <span aria-hidden="true" className="tp-note__chevron"></span>
-                      </button>
-                    </h2>
-                    <div id="a-bd85389d-2116-4c4b-8500-0a5a82cae22c" role="region" aria-labelledby="q-bd85389d-2116-4c4b-8500-0a5a82cae22c" className="tp-note__answer" inert="">
-                      <div className="tp-note__flap">
-                        <p>
-Yes. Through our Order Upon Request service we source rare and premium teacup breeds from the most reputable, certified breeders across Europe, Korea, and beyond — and we handle the import for you.                        </p>
-                      </div>
-                    </div>
-                  </li>
-                  <li className="tp-note" data-reveal="true" {...(openIds["9c865c5e-bd1e-4bd3-9c09-cf193923123e"] ? { "data-unfolded": "" } : {})} style={{"--tilt": "-1.2deg", "--pin": "var(--color-toffee)", "--i": "4"}}>
-                    <span aria-hidden="true" className="tp-note__pin"></span>
-                    <h2 className="tp-note__q">
-                      <button type="button" id="q-9c865c5e-bd1e-4bd3-9c09-cf193923123e" aria-expanded={openIds["9c865c5e-bd1e-4bd3-9c09-cf193923123e"] ? "true" : "false"} aria-controls="a-9c865c5e-bd1e-4bd3-9c09-cf193923123e" onClick={() => toggleNote("9c865c5e-bd1e-4bd3-9c09-cf193923123e")}>
-                        <span className="font-plush-text">How does an imported puppy travel to Dubai?</span>
-                        <span aria-hidden="true" className="tp-note__chevron"></span>
-                      </button>
-                    </h2>
-                    <div id="a-9c865c5e-bd1e-4bd3-9c09-cf193923123e" role="region" aria-labelledby="q-9c865c5e-bd1e-4bd3-9c09-cf193923123e" className="tp-note__answer" inert="">
-                      <div className="tp-note__flap">
-                        <p>
-We manage every part of the import process, including health checks, travel arrangements, and the necessary documentation, so your puppy arrives happy, healthy, and stress-free.                        </p>
-                      </div>
-                    </div>
-                  </li>
-                  <li className="tp-note" data-reveal="true" {...(openIds["18483536-4415-4cc9-8ef8-913421f9da89"] ? { "data-unfolded": "" } : {})} style={{"--tilt": "0.7deg", "--pin": "var(--color-sky-deep)", "--i": "5"}}>
-                    <span aria-hidden="true" className="tp-note__pin"></span>
-                    <h2 className="tp-note__q">
-                      <button type="button" id="q-18483536-4415-4cc9-8ef8-913421f9da89" aria-expanded={openIds["18483536-4415-4cc9-8ef8-913421f9da89"] ? "true" : "false"} aria-controls="a-18483536-4415-4cc9-8ef8-913421f9da89" onClick={() => toggleNote("18483536-4415-4cc9-8ef8-913421f9da89")}>
-                        <span className="font-plush-text">Will I see photos and health details first?</span>
-                        <span aria-hidden="true" className="tp-note__chevron"></span>
-                      </button>
-                    </h2>
-                    <div id="a-18483536-4415-4cc9-8ef8-913421f9da89" role="region" aria-labelledby="q-18483536-4415-4cc9-8ef8-913421f9da89" className="tp-note__answer" inert="">
-                      <div className="tp-note__flap">
-                        <p>
-Yes. Photos, videos, and health certificates are shared before your puppy travels, and our team sends real photos and health details directly on WhatsApp.                        </p>
-                      </div>
-                    </div>
-                  </li>
-                  <li className="tp-note" data-reveal="true" {...(openIds["653f64ec-6e3a-4e3a-b4ab-8862b96fd123"] ? { "data-unfolded": "" } : {})} style={{"--tilt": "-1.9deg", "--pin": "#d9a13c", "--i": "6"}}>
-                    <span aria-hidden="true" className="tp-note__pin"></span>
-                    <h2 className="tp-note__q">
-                      <button type="button" id="q-653f64ec-6e3a-4e3a-b4ab-8862b96fd123" aria-expanded={openIds["653f64ec-6e3a-4e3a-b4ab-8862b96fd123"] ? "true" : "false"} aria-controls="a-653f64ec-6e3a-4e3a-b4ab-8862b96fd123" onClick={() => toggleNote("653f64ec-6e3a-4e3a-b4ab-8862b96fd123")}>
-                        <span className="font-plush-text">Do you deliver?</span>
-                        <span aria-hidden="true" className="tp-note__chevron"></span>
-                      </button>
-                    </h2>
-                    <div id="a-653f64ec-6e3a-4e3a-b4ab-8862b96fd123" role="region" aria-labelledby="q-653f64ec-6e3a-4e3a-b4ab-8862b96fd123" className="tp-note__answer" inert="">
-                      <div className="tp-note__flap">
-                        <p>
-Yes. We deliver within Dubai, and our trusted international cargo partners deliver puppies safely to loving homes all around the world.                        </p>
-                      </div>
-                    </div>
-                  </li>
-                  <li className="tp-note" data-reveal="true" {...(openIds["c7990450-8c87-47f5-9ebe-1490c7f47ffa"] ? { "data-unfolded": "" } : {})} style={{"--tilt": "1.4deg", "--pin": "#c45a6a", "--i": "7"}}>
-                    <span aria-hidden="true" className="tp-note__pin"></span>
-                    <h2 className="tp-note__q">
-                      <button type="button" id="q-c7990450-8c87-47f5-9ebe-1490c7f47ffa" aria-expanded={openIds["c7990450-8c87-47f5-9ebe-1490c7f47ffa"] ? "true" : "false"} aria-controls="a-c7990450-8c87-47f5-9ebe-1490c7f47ffa" onClick={() => toggleNote("c7990450-8c87-47f5-9ebe-1490c7f47ffa")}>
-                        <span className="font-plush-text">Which breeds do you usually have?</span>
-                        <span aria-hidden="true" className="tp-note__chevron"></span>
-                      </button>
-                    </h2>
-                    <div id="a-c7990450-8c87-47f5-9ebe-1490c7f47ffa" role="region" aria-labelledby="q-c7990450-8c87-47f5-9ebe-1490c7f47ffa" className="tp-note__answer" inert="">
-                      <div className="tp-note__flap">
-                        <p>
-Breeds we regularly have include Maltipoo, Pomeranian, Poodle and Bichon, plus rare teacup lines such as Korean teacup poodles, Maltese, Pom and Yorkie.                        </p>
-                      </div>
-                    </div>
-                  </li>
-                  <li className="tp-note" data-reveal="true" {...(openIds["67b95211-ac7c-4582-a684-90fcd4e00812"] ? { "data-unfolded": "" } : {})} style={{"--tilt": "-1.6deg", "--pin": "var(--color-toffee)", "--i": "8"}}>
-                    <span aria-hidden="true" className="tp-note__pin"></span>
-                    <h2 className="tp-note__q">
-                      <button type="button" id="q-67b95211-ac7c-4582-a684-90fcd4e00812" aria-expanded={openIds["67b95211-ac7c-4582-a684-90fcd4e00812"] ? "true" : "false"} aria-controls="a-67b95211-ac7c-4582-a684-90fcd4e00812" onClick={() => toggleNote("67b95211-ac7c-4582-a684-90fcd4e00812")}>
-                        <span className="font-plush-text">Is there help after my puppy comes home?</span>
-                        <span aria-hidden="true" className="tp-note__chevron"></span>
-                      </button>
-                    </h2>
-                    <div id="a-67b95211-ac7c-4582-a684-90fcd4e00812" role="region" aria-labelledby="q-67b95211-ac7c-4582-a684-90fcd4e00812" className="tp-note__answer" inert="">
-                      <div className="tp-note__flap">
-                        <p>
-Yes. Our team is available 24/7 and offers advice on training, nutrition, and general care to ensure a smooth transition for you and your new furry friend.                        </p>
-                      </div>
-                    </div>
-                  </li>
+                  {visibleFaqs.map((item, index) => {
+                    const isOpen = !!openIds[item.id];
+                    return (
+                      <li
+                        key={item.id}
+                        className="tp-note"
+                        data-reveal="true"
+                        {...(isOpen ? { "data-unfolded": "" } : {})}
+                        style={{"--tilt": TILTS[index % TILTS.length], "--pin": PINS[index % PINS.length], "--i": String(index)}}
+                      >
+                        <span aria-hidden="true" className="tp-note__pin"></span>
+                        <h2 className="tp-note__q">
+                          <button type="button" id={"q-" + item.id} aria-expanded={isOpen ? "true" : "false"} aria-controls={"a-" + item.id} onClick={() => toggleNote(item.id)}>
+                            <span className="font-plush-text">{highlight(item.q, query)}</span>
+                            <span aria-hidden="true" className="tp-note__chevron"></span>
+                          </button>
+                        </h2>
+                        <div id={"a-" + item.id} role="region" aria-labelledby={"q-" + item.id} className="tp-note__answer" {...(isOpen ? {} : { inert: "" })}>
+                          <div className="tp-note__flap">
+                            <p>{highlight(item.a, query)}</p>
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             </div>
