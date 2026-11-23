@@ -1,11 +1,55 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
+import happyFamiliesData from '../data/happyFamiliesData.json';
 
 export default function HappyFamiliesPage() {
+  const [viewerIndex, setViewerIndex] = useState(null);
+
+  const handlePrev = useCallback((e) => {
+    e?.stopPropagation();
+    setViewerIndex((prev) => (prev === null || prev === 0 ? happyFamiliesData.length - 1 : prev - 1));
+  }, []);
+
+  const handleNext = useCallback((e) => {
+    e?.stopPropagation();
+    setViewerIndex((prev) => (prev === null || prev === happyFamiliesData.length - 1 ? 0 : prev + 1));
+  }, []);
+
+  const [touchStartX, setTouchStartX] = useState(null);
+  const handleTouchStart = (e) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+  const handleTouchEnd = (e) => {
+    if (touchStartX === null) return;
+    const diff = e.changedTouches[0].clientX - touchStartX;
+    if (diff < -50) handleNext();
+    else if (diff > 50) handlePrev();
+    setTouchStartX(null);
+  };
+
   useEffect(() => {
     document.title = 'Happy families & puppy stories | TeddyPups U.A.E.';
     window.scrollTo(0, 0);
   }, []);
+
+  useEffect(() => {
+    if (viewerIndex === null) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowRight') handleNext();
+      if (e.key === 'ArrowLeft') handlePrev();
+      if (e.key === 'Escape') setViewerIndex(null);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [viewerIndex, handleNext, handlePrev]);
 
   return (
     <main id="main" tabIndex="-1" className="relative pt-[var(--header-h)] outline-none">
@@ -36,910 +80,45 @@ Sarah M., Dubai, UAE              </figcaption>
           <div className="mt-16 md:mt-20">
             <div>
               <ul className="tp-wall" aria-label="Photos from TeddyPups families">
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "0ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 1 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-2.2deg", "--tape": "#f6d79a", "--i": "0"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" fetchPriority="high" loading="eager" width="960" height="1280" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#e8c8a8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FTUslu26Ueaq-_2F9c3516c040_2Fedb2f5_6627857aca7e495ea37d9f62d814d323-mv2.jpeg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "60ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 2 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "1.6deg", "--tape": "#f9cdbf", "--i": "1"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--left"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" fetchPriority="high" loading="eager" width="1320" height="1254" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#b8c8d8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FOcgEePeBmGuu_2F41fb22320b_2Fedb2f5_adf88f7400c848249d60698fca0336e9-mv2.jpeg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "120ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 3 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-0.9deg", "--tape": "#cfe5f6", "--i": "2"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--right"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="960" height="1280" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#c89868", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FRYkyuv4DBCTC_2Fd9e02a0dc8_2Fedb2f5_7ed2ee1ba89b4230b52f5e3981b1b198-mv2.jpeg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "180ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 4 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "2.4deg", "--tape": "#f6d79a", "--i": "3"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--tl"></span>
-                      <span aria-hidden="true" className="tp-tape tp-tape--tr"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="1320" height="1254" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#e8e8e8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2Fd267R4d3lMSv_2F96d8604ca3_2Fedb2f5_02b95a69a2c24c7e81b60e6d8c01baf7-mv2.jpeg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "0ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 5 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-1.5deg", "--tape": "#e9dcc4", "--i": "4"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="960" height="1280" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#a88878", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FXqxhmNftVKic_2F5adf2f28fe_2Fedb2f5_37f5218f73e842b88ee3ae0c911bcafa-mv2.jpeg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "60ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 6 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "0.8deg", "--tape": "#f6d79a", "--i": "5"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--right"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="1320" height="1587" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#e8e8e8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2F1II_yVrwWdOG_2Fc07a8ef9f1_2Fedb2f5_258010c661f64f3b8b952c5a2f7677de-mv2.jpeg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "120ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 7 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-2.6deg", "--tape": "#f9cdbf", "--i": "6"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--left"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="960" height="1280" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#f8c8a8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FbKP7vwN0R2OU_2F1aa47534b5_2Fedb2f5_b8d76dffb97f46b5a9f2aaf9c1067b4b-mv2.jpeg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "180ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 8 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "1.2deg", "--tape": "#cfe5f6", "--i": "7"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="1200" height="1600" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#080808", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FToVkYw_K3UrY_2F81a2bd9ac1_2Fedb2f5_582a3767e5eb408f9684a7e623229dc4-mv2.jpeg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "0ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 9 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-2.2deg", "--tape": "#f6d79a", "--i": "8"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="1289" height="1481" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#f8f8f8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FstDfO2jMfvb_2F6228a11db2_2Fedb2f5_4b08003ef57c4663b55c9ac0c4147c36-mv2.jpeg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "60ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 10 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "1.6deg", "--tape": "#e9dcc4", "--i": "9"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--left"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="1289" height="1330" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#381808", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FK-U7RwW9j2A9_2F09d7edc058_2Fedb2f5_22d3cc4ae0e14216a0d3a1ec9796649f-mv2.jpeg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "120ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 11 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-0.9deg", "--tape": "#f6d79a", "--i": "10"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--right"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="433" height="433" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#d8c8a8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2Fs23WYu0qJQ_h_2Fd0ad444e50_2F27b888_a887dbff51fb420d95774cce6a8d54fb-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "180ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 12 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "2.4deg", "--tape": "#f9cdbf", "--i": "11"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--tl"></span>
-                      <span aria-hidden="true" className="tp-tape tp-tape--tr"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="960" height="1280" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#f8d8c8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2Fab5hEGUKO4aY_2Fde923fd8eb_2Fedb2f5_d5177ed7ae1344d7acc11e9770df7b74-mv2.jpeg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "0ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 13 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-1.5deg", "--tape": "#cfe5f6", "--i": "12"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="1306" height="1600" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#d8e8f8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FyEfM9sdMluCX_2F46ecd570ef_2Fedb2f5_099acc542ba14359aa8c0f933cb4ef2c-mv2.jpeg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "60ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 14 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "0.8deg", "--tape": "#f6d79a", "--i": "13"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--right"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="433" height="433" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#c8b898", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2F_41LE-nBf847_2F2ea8e152eb_2F27b888_76aa3ad05faf40bd8eb2a6d826737525-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "120ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 15 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-2.6deg", "--tape": "#e9dcc4", "--i": "14"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--left"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="433" height="433" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#f8f8f8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2Ftuarxe-C9j5H_2F913026dd39_2F27b888_b22e1ced7da74ea7a14a68474d8c2dc0-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "180ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 16 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "1.2deg", "--tape": "#f6d79a", "--i": "15"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="2150" height="2686" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#281818", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FUuJqjsRN-wKL_2F047b245604_2Fb942a5_a1ead54bc6934e5ab953e98d4aa0312d-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "0ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 17 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-2.2deg", "--tape": "#f9cdbf", "--i": "16"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="1200" height="1600" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#c8c8c8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FqZ5mPGpLO-G9_2F1d4c092a1e_2F27b888_4af83a5cffb44045bcab615b0cbc237c-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "60ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 18 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "1.6deg", "--tape": "#cfe5f6", "--i": "17"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--left"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="844" height="1327" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#282818", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FxHEMhVTwflC_2F8859dd626c_2Fb942a5_65113182432144f49bd50bb009e7d88c-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "120ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 19 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-0.9deg", "--tape": "#f6d79a", "--i": "18"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--right"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="787" height="1339" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#482818", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FQYUwdroeZC35_2F52e467dddb_2Fb942a5_03ab53e8167c454eaf75e37491e51b03-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "180ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 20 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "2.4deg", "--tape": "#e9dcc4", "--i": "19"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--tl"></span>
-                      <span aria-hidden="true" className="tp-tape tp-tape--tr"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="959" height="1280" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#88b8e8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FrZE7ypWUH0wz_2F3ccfc972cd_2F27b888_d8c90ec444654b9c964dc2527814ceaf-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "0ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 21 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-1.5deg", "--tape": "#f6d79a", "--i": "20"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="3120" height="4160" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#080808", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FSg8iy_EOrJah_2F684699406d_2F27b888_3594e056bf964a7a839a1bd5ac0c859e-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "60ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 22 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "0.8deg", "--tape": "#f9cdbf", "--i": "21"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--right"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="2142" height="2856" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#080808", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FCVsVLsnCV0L3_2F626d9c9855_2F27b888_522e394293a845bcae93adec46bf499c-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "120ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 23 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-2.6deg", "--tape": "#cfe5f6", "--i": "22"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--left"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="2142" height="2856" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#b8a888", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2F1ziQH1fmyl-k_2F6193c5fa7f_2F27b888_d76b636e082842139943ca9fece80632-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "180ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 24 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "1.2deg", "--tape": "#f6d79a", "--i": "23"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="2142" height="2856" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#c8b8a8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2F2BoSaeBhLer8_2F05c9d02f5a_2F27b888_48694c17ac634f32b63bcd21052c10c3-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "0ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 25 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-2.2deg", "--tape": "#e9dcc4", "--i": "24"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="960" height="1280" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#181818", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FQLO4DWvoWlJY_2F7ccb7aae32_2F27b888_13d2747a7f454379a5670b552690f728-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "60ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 26 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "1.6deg", "--tape": "#f6d79a", "--i": "25"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--left"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="2142" height="2856" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#a88878", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FxaIi_2gMoj_N_2F27123a3e2c_2F27b888_3375199e717a4f6ca02e902672664e79-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "120ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 27 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-0.9deg", "--tape": "#f9cdbf", "--i": "26"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--right"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="2142" height="2856" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#080808", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FGyAYtgNRGHUw_2F379090aed6_2F27b888_3f1463156de645feb90bf306b2572b76-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "180ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 28 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "2.4deg", "--tape": "#cfe5f6", "--i": "27"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--tl"></span>
-                      <span aria-hidden="true" className="tp-tape tp-tape--tr"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="2142" height="2856" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#d8c8b8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FNCnzIyNwzZiC_2F11eddf4e8e_2F27b888_f405d17027174cdfa4437b9b1d84eaa2-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "0ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 29 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-1.5deg", "--tape": "#f6d79a", "--i": "28"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="2142" height="2856" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#d8c8b8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2F2RCKCPAW7oIk_2F31af5cd06d_2F27b888_9b40a22ad84e4e8cbf625acab1bc8e4f-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "60ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 30 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "0.8deg", "--tape": "#e9dcc4", "--i": "29"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--right"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="2142" height="2856" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#d8c8a8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2Fd9RWhCKfRHOc_2Fc549944174_2F27b888_0ad908eb6ba745b7b3e1426338af1803-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "120ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 31 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-2.6deg", "--tape": "#f6d79a", "--i": "30"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--left"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="960" height="1280" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#f8f8f8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FtI7E08CB-sVp_2Fb655581264_2F27b888_a649f91c871046d2a4231ceda00ec982-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "180ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 32 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "1.2deg", "--tape": "#f9cdbf", "--i": "31"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="960" height="1280" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#080808", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FuL-D7uBZjs12_2F3cc9e2690e_2F27b888_96b9eb6428164f41b124137673bc865c-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "0ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 33 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-2.2deg", "--tape": "#cfe5f6", "--i": "32"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="960" height="1280" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#d8d8c8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FAK4nDMw3v53a_2F9ded532913_2F27b888_89af9713331443c3b9f4b72a83d646e3-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "60ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 34 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "1.6deg", "--tape": "#f6d79a", "--i": "33"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--left"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="1200" height="1600" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#988868", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FSXZSpIZJimpQ_2F0a488a56a5_2F27b888_927dffc200a44f9dafcb953b765beec0-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "120ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 35 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-0.9deg", "--tape": "#e9dcc4", "--i": "34"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--right"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="720" height="1280" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#080808", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FNBeJ3y_g-Iee_2Fa4a5827b07_2F27b888_bba195dd5eec46e798d3dc05790f1e99-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "180ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 36 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "2.4deg", "--tape": "#f6d79a", "--i": "35"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--tl"></span>
-                      <span aria-hidden="true" className="tp-tape tp-tape--tr"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="2142" height="2856" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#c8b898", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2F6Abv8pfqHoEA_2Fa6fb93823b_2F27b888_ff288b45f9694416b3f3d019d7a9a1d4-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "0ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 37 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-1.5deg", "--tape": "#f9cdbf", "--i": "36"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="720" height="1280" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#483838", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FUFzHrheMHQmi_2F7ce45654d8_2F27b888_ade4298d721a444888379393d06745cb-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "60ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 38 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "0.8deg", "--tape": "#cfe5f6", "--i": "37"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--right"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="2142" height="2856" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#d8c8b8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2F937wIvKxefpy_2Fa42f072027_2F27b888_664db706809c46eea8e75db06885de6a-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "120ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 39 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-2.6deg", "--tape": "#f6d79a", "--i": "38"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--left"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="2142" height="2856" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#181818", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FBxM75hECdt9p_2Feb17b83cc8_2F27b888_659cfe02524541e0ab0a94cc71a2a189-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "180ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 40 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "1.2deg", "--tape": "#e9dcc4", "--i": "39"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="2142" height="2856" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#d8c8b8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FO88qTc2s7KH8_2F032fd55fa2_2F27b888_da4b7d60a604414e95bfb91efcdad6f6-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "0ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 41 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-2.2deg", "--tape": "#f6d79a", "--i": "40"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="2142" height="2856" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#d8c8a8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FPAAMBTTfmXOK_2F37d59d6ee3_2F27b888_dad1db0c47834985a25b98b067cf563e-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "60ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 42 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "1.6deg", "--tape": "#f9cdbf", "--i": "41"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--left"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="2142" height="2856" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#b89888", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2F9A74-QBbi78w_2Fd788ec6f31_2F27b888_96324661ab4742649af7d72ba465f0a8-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "120ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 43 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-0.9deg", "--tape": "#cfe5f6", "--i": "42"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--right"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="784" height="1280" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#887868", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2F0wEBefsp1F5j_2F1b67ab78e0_2F27b888_8727fecbf89b4648b443b9bfab83fffd-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "180ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 44 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "2.4deg", "--tape": "#f6d79a", "--i": "43"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--tl"></span>
-                      <span aria-hidden="true" className="tp-tape tp-tape--tr"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="958" height="1280" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#181818", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2Fhu2K_kmYs7s9_2F0e8b423b7c_2F27b888_b5a504249d254ac7a02693ba340c74fb-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "0ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 45 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-1.5deg", "--tape": "#e9dcc4", "--i": "44"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="480" height="640" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#d8b8a8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FLpUvbTEyekwN_2F556d16df42_2F27b888_74e15c47a77b48a39e5174d2657bc417-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "60ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 46 of 64: Lulu 🧸 with her new mummy ❤️">
-                    <span className="tp-polaroid" style={{"--tilt": "0.8deg", "--tape": "#f6d79a", "--i": "45"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--right"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="433" height="433" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#d8b898", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FdI8Jv0KRTiLJ_2Fd2d7e5375b_2F27b888_7d940ce5701f48d98327e4a242b53ac4-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl">Lulu 🧸 with her new mummy ❤️</span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "120ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 47 of 64: Adorable Maltipoo baby 🧸❤️">
-                    <span className="tp-polaroid" style={{"--tilt": "-2.6deg", "--tape": "#f9cdbf", "--i": "46"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--left"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="433" height="433" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#d8b888", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FTI-WtaFssfQt_2Fc41fb2a387_2F27b888_15920f828b864dd1b44b98ec4e964c53-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl">Adorable Maltipoo baby 🧸❤️</span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "180ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 48 of 64: My new teddy puppy 🥰🧸">
-                    <span className="tp-polaroid" style={{"--tilt": "1.2deg", "--tape": "#cfe5f6", "--i": "47"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="433" height="433" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#c8b898", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2Fj6T9eswP2eS8_2F59c6879a1d_2F27b888_bc27df54dcce410196c6016475364ff3-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl">My new teddy puppy 🥰🧸</span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "0ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 49 of 64: Our new puppies 🧸🥰🤗">
-                    <span className="tp-polaroid" style={{"--tilt": "-2.2deg", "--tape": "#f6d79a", "--i": "48"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="433" height="433" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#c8a888", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FHJgL4rRnmReV_2F533701358f_2F27b888_082e47dfd8144423a96dc70d966fa5b2-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl">Our new puppies 🧸🥰🤗</span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "60ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 50 of 64: New puppy 🧸😍">
-                    <span className="tp-polaroid" style={{"--tilt": "1.6deg", "--tape": "#e9dcc4", "--i": "49"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--left"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="433" height="433" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#e8d8b8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2Fuc5ANs5jm7r7_2F7160d8b7b1_2F27b888_f7f4966e59e94db591784d4ec546682f-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl">New puppy 🧸😍</span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "120ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 51 of 64: Gang of 3 😍🧸">
-                    <span className="tp-polaroid" style={{"--tilt": "-0.9deg", "--tape": "#f6d79a", "--i": "50"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--right"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="433" height="433" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#b89878", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FpRJubyqHw8p7_2Fd58c4c07ee_2F27b888_b073c5815f7c4f92ad9a57741a653663-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl">Gang of 3 😍🧸</span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "180ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 52 of 64: So happy 😍😍">
-                    <span className="tp-polaroid" style={{"--tilt": "2.4deg", "--tape": "#f9cdbf", "--i": "51"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--tl"></span>
-                      <span aria-hidden="true" className="tp-tape tp-tape--tr"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="433" height="433" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#583838", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2F4wOJk9azop_-_2F65ecf66bf0_2F27b888_cfe895dbcc2d4bff85f890be9b496543-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl">So happy 😍😍</span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "0ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 53 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-1.5deg", "--tape": "#cfe5f6", "--i": "52"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="433" height="433" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#e8c8a8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2F2ZpD4FCAriYZ_2F56ea196e78_2F27b888_160a7ee974d74fc7ae452afc6e5fccea-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "60ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 54 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "0.8deg", "--tape": "#f6d79a", "--i": "53"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--right"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="433" height="433" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#c8b898", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FBarQuR6VS6XX_2F3acd4e6449_2F27b888_2255683016304a278b17353cb21c1f45-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "120ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 55 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-2.6deg", "--tape": "#e9dcc4", "--i": "54"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--left"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="433" height="433" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#383838", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2Fl_M8IYdzFJHb_2Fbc8ad2f58f_2F27b888_80b7b3c14907460f8dc1457ffd99a99d-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "180ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 56 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "1.2deg", "--tape": "#f6d79a", "--i": "55"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="433" height="433" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#c8b898", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FaAf69e7YtFrb_2Fe162c491b3_2F27b888_f18596e1a72543d695d79416569bef23-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "0ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 57 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-2.2deg", "--tape": "#f9cdbf", "--i": "56"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="433" height="433" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#384858", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FqesMnrX7cliq_2Fda5bec6e86_2F27b888_3def48865368404392a98437a48e6ec7-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "60ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 58 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "1.6deg", "--tape": "#cfe5f6", "--i": "57"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--left"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="433" height="433" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#c8a888", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FsqPa3JOR3OPc_2F4273c20214_2F27b888_62c31ea0db1f452a8ca28369aef45c8d-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "120ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 59 of 64: New pup 🤗💫">
-                    <span className="tp-polaroid" style={{"--tilt": "-0.9deg", "--tape": "#f6d79a", "--i": "58"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--right"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="433" height="433" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#182848", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2F3h20rIasJCOa_2F10c307cb1c_2F27b888_a7e7ab6a931e4c79a798bab9927d396e-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl">New pup 🤗💫</span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "180ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 60 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "2.4deg", "--tape": "#e9dcc4", "--i": "59"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--tl"></span>
-                      <span aria-hidden="true" className="tp-tape tp-tape--tr"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="340" height="403" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#f8f8f8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FNaV9L3-u1vss_2Fcb3d13765a_2F27b888_91d95c12076a4efd94128b14dceb216f-mv2.avif_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "0ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 61 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-1.5deg", "--tape": "#f6d79a", "--i": "60"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="535" height="467" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#080808", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FEINH5_Xbws14_2Fdae797ecdf_2F27b888_202b27e8ecca4b4d8715c8f648bd35e4-mv2.avif_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "60ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 62 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "0.8deg", "--tape": "#f9cdbf", "--i": "61"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--right"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="1618" height="809" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#080808", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FwyDhW6yEQ6ef_2Fe012615aab_2Fb942a5_9381a9a0ca3e40b4b4f31906cf7fda56-mv2.png_w_3840_q_75.png" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "120ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 63 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "-2.6deg", "--tape": "#cfe5f6", "--i": "62"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--left"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="1512" height="1321" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#e8e8e8", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2Fn6BJMOg_-QYI_2F82329c84b0_2Fb942a5_dc4082b7b0454025bcef4c790c4f4e68-mv2.jpg_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
-                <li className="tp-wall__item" data-reveal="true" style={{"--d": "180ms"}}>
-                  <button type="button" className="tp-wall__print" aria-label="Open photo 64 of 64">
-                    <span className="tp-polaroid" style={{"--tilt": "1.2deg", "--tape": "#f6d79a", "--i": "63"}}>
-                      <span aria-hidden="true" className="tp-tape tp-tape--center"></span>
-                      <span className="tp-polaroid__photo">
-                        <img alt="A happy TeddyPups family with their new puppy" loading="lazy" width="720" height="405" decoding="async" data-nimg="1" style={{color: "transparent", width: "100%", height: "auto", backgroundColor: "#181818", backgroundSize: "cover", backgroundPosition: "50% 50%", backgroundRepeat: "no-repeat", backgroundImage: "url(\"data:image/webp"}} sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw" src="/_next/image.url_2Fmedia_2FnTiIYDlSaIjG_2F334a39f6a3_2F27b888_febae47e079240d28d1602b54813dca4-mv2.avif_w_3840_q_75.jpg" />
-                      </span>
-                      <span className="tp-polaroid__caption font-scrawl"></span>
-                    </span>
-                    <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
-                      <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
-                    </svg>
-                  </button>
-                </li>
+                {happyFamiliesData.map((item, idx) => (
+                  <li
+                    key={item.id}
+                    className="tp-wall__item"
+                    data-reveal="true"
+                    style={item.d}
+                  >
+                    <button
+                      type="button"
+                      className="tp-wall__print"
+                      aria-label={item.ariaLabel}
+                      onClick={() => setViewerIndex(idx)}
+                    >
+                      <span className="tp-polaroid" style={item.polaroidStyle}>
+                        <span aria-hidden="true" className={item.tapeClass}></span>
+                        <span className="tp-polaroid__photo">
+                          <img
+                            alt={item.img.alt}
+                            fetchPriority={item.img.fetchPriority || undefined}
+                            loading={item.img.loading || "lazy"}
+                            width={item.img.width}
+                            height={item.img.height}
+                            decoding="async"
+                            data-nimg="1"
+                            style={item.img.style}
+                            sizes={item.img.sizes}
+                            src={item.img.src}
+                          />
+                        </span>
+                        <span className="tp-polaroid__caption font-scrawl">
+                          {item.caption}
+                        </span>
+                      </span>
+                      <svg viewBox="0 0 64 64" className="tp-wall__paw" aria-hidden="true" fill="currentColor">
+                        <path d="M32 30.5c-7.6 0-15.6 8.3-15.6 15.5 0 5.4 4.2 8.3 9.2 8.3 2.6 0 4.5-1.1 6.4-1.1s3.8 1.1 6.4 1.1c5 0 9.2-2.9 9.2-8.3 0-7.2-8-15.5-15.6-15.5zM19.28 26.71C21.07 30.08 20.42 33.92 17.84 35.29C15.25 36.67 11.71 35.05 9.92 31.69C8.13 28.32 8.78 24.48 11.36 23.11C13.95 21.73 17.49 23.35 19.28 26.71ZM29.62 15.64C30.32 19.62 28.46 23.26 25.47 23.79C22.48 24.32 19.48 21.53 18.78 17.56C18.08 13.58 19.94 9.94 22.93 9.41C25.92 8.88 28.92 11.67 29.62 15.64ZM45.22 17.56C44.52 21.53 41.52 24.32 38.53 23.79C35.54 23.26 33.68 19.62 34.38 15.64C35.08 11.67 38.08 8.88 41.07 9.41C44.06 9.94 45.92 13.58 45.22 17.56ZM54.08 31.69C52.29 35.05 48.75 36.67 46.16 35.29C43.58 33.92 42.93 30.08 44.72 26.71C46.51 23.35 50.05 21.73 52.64 23.11C55.22 24.48 55.87 28.32 54.08 31.69Z" />
+                      </svg>
+                    </button>
+                  </li>
+                ))}
               </ul>
             </div>
             <dialog aria-label="Photo viewer" className="m-0 h-dvh max-h-none w-screen max-w-none bg-cocoa/95 p-0 text-milk backdrop:bg-cocoa/70" data-lenis-prevent="true"></dialog>
@@ -1028,6 +207,70 @@ Sarah M., Dubai, UAE              </figcaption>
         </div>
       </section>
     </div>
+    
+      {/* Lightbox Photo Viewer Modal */}
+      {viewerIndex !== null && createPortal(
+        <div
+          aria-label="Photo viewer"
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-[99999] flex h-dvh w-screen flex-col justify-between bg-cocoa/95 p-0 text-milk backdrop:bg-cocoa/70 select-none overflow-hidden"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setViewerIndex(null);
+          }}
+          data-lenis-prevent="true"
+        >
+          {/* Top Bar: Photo count on left, Close button on right */}
+          <div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-6">
+            <p className="font-scrawl text-lg text-milk">
+              {viewerIndex + 1} / {happyFamiliesData.length}
+              {happyFamiliesData[viewerIndex]?.caption ? ` — ${happyFamiliesData[viewerIndex].caption}` : ''}
+            </p>
+            <button
+              type="button"
+              onClick={() => setViewerIndex(null)}
+              className="h-11 rounded-full bg-milk px-5 font-semibold text-cocoa transition-colors hover:bg-honey"
+            >
+              Close
+            </button>
+          </div>
+
+          {/* Center Media Area */}
+          <div
+            className="relative flex flex-1 items-center justify-center overflow-hidden p-2 sm:p-4 touch-pan-y"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setViewerIndex(null);
+            }}
+          >
+            <img
+              src={happyFamiliesData[viewerIndex]?.img?.src}
+              alt={happyFamiliesData[viewerIndex]?.img?.alt || "A happy TeddyPups family with their new puppy"}
+              className="size-full max-h-[75vh] md:max-h-[80vh] object-contain"
+            />
+          </div>
+
+          {/* Bottom Bar: Previous and Next Controls */}
+          <div className="flex justify-center gap-3 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3">
+            <button
+              type="button"
+              onClick={handlePrev}
+              className="h-12 rounded-full border-2 border-milk px-6 font-semibold text-milk transition-transform hover:bg-milk/10 active:scale-95"
+            >
+              Previous
+            </button>
+            <button
+              type="button"
+              onClick={handleNext}
+              className="h-12 rounded-full bg-honey px-6 font-semibold text-cocoa transition-transform hover:bg-honey/90 active:scale-95"
+            >
+              Next
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
     </main>
   );
 }
