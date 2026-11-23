@@ -86,8 +86,16 @@ export default function PuppyDetailPage() {
 
   useEffect(() => {
     if (!lightboxOpen) return;
-    const prevOverflow = document.body.style.overflow;
+    const prevBodyOverflow = document.body.style.overflow;
+    const prevHtmlOverflow = document.documentElement.style.overflow;
     document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    document.body.classList.add('has-open-modal');
+    document.documentElement.classList.add('has-open-modal');
+
+    const header = document.getElementById('site-header');
+    const prevHeaderDisplay = header ? header.style.display : '';
+    if (header) header.style.display = 'none';
 
     const handleKeyDown = (e) => {
       if (e.key === 'ArrowRight') handleNext();
@@ -95,10 +103,21 @@ export default function PuppyDetailPage() {
       if (e.key === 'Escape') setLightboxOpen(false);
     };
 
+    const handleWheel = (e) => {
+      e.preventDefault();
+    };
+
     window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('wheel', handleWheel, { passive: false });
+
     return () => {
-      document.body.style.overflow = prevOverflow;
+      document.body.style.overflow = prevBodyOverflow;
+      document.documentElement.style.overflow = prevHtmlOverflow;
+      document.body.classList.remove('has-open-modal');
+      document.documentElement.classList.remove('has-open-modal');
+      if (header) header.style.display = prevHeaderDisplay;
       window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('wheel', handleWheel);
     };
   }, [lightboxOpen, handleNext, handlePrev]);
 
@@ -594,7 +613,15 @@ export default function PuppyDetailPage() {
               aria-label={`${puppy.title} photos`}
               role="dialog"
               aria-modal="true"
-              className="fixed inset-0 z-[99999] flex h-dvh w-screen flex-col justify-between bg-cocoa/95 p-0 text-milk backdrop:bg-cocoa/70 select-none overflow-hidden"
+              className="fixed inset-0 flex h-dvh w-screen flex-col justify-between bg-cocoa/95 p-0 text-milk backdrop:bg-cocoa/70 select-none overflow-hidden"
+              style={{
+                zIndex: 9999999,
+                position: 'fixed',
+                inset: 0,
+                touchAction: 'none'
+              }}
+              onWheel={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
               onClick={(e) => {
                 if (e.target === e.currentTarget) setLightboxOpen(false);
               }}

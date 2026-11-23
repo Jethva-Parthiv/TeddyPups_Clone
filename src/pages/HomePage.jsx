@@ -705,7 +705,7 @@ See them, love them, take them home. Come meet our locally available puppies bef
                           <path d="M206 64 C215 67 221 73 224 80" className="tp-flight__line" />
                         </g>
                         <g transform="translate(10 2)">
-                          <image to="/_next/image?url=%2Fmedia%2FgAaGwoGej2g6%2F5523e884dd%2Fb942a5_50f0ae67c9ff437d911597d52a9e63b3-mv2.jpg&w=128&q=75" x="-25" y="-25" width="50" height="50" clipPath="url(#_R_jieankivb_)" preserveAspectRatio="xMidYMid slice"></image>
+                          <image style={{ clipPath: "circle(50%)" }} href="/_next/b942a5_50f0ae67c9ff437d911597d52a9e63b3-mv2.webp" x="-25" y="-25" width="50" height="50" clipPath="url(#_R_jieankivb_)" preserveAspectRatio="xMidYMid slice"></image>
                           <circle r="25" className="tp-flight__porthole" />
                         </g>
                       </g>
@@ -882,7 +882,7 @@ Select your preferred breed or tell us what you're looking for. We'll guide you 
                     </div>
                     <div className="tp-msg tp-msg--them tp-msg--media">
                       <div className="tp-clip">
-                        <video src="https://puppy.instabizweb.com/media/dSAUmXs8Qai9/ef39cbea20/27b888_323008bb0f6a41d4bde2a0da7206cd98-720p.mp4" poster="/media/FHyoHcIosLZE/60f6e7e00a/27b888_323008bb0f6a41d4bde2a0da7206cd98f000.jpg" muted="" loop="" playsInline preload="none" aria-label="Video of a tiny apricot teddy bear puppy in the TeddyPups showroom"></video>
+                        <video src="https://puppy.instabizweb.com/media/dSAUmXs8Qai9/ef39cbea20/27b888_323008bb0f6a41d4bde2a0da7206cd98-720p.mp4" poster="/_next/image.url_2Fmedia_2FFHyoHcIosLZE_2F60f6e7e00a_2F27b888_323008bb0f6a41d4bde2a0da7206cd98f000.jpg_w_3840_q_75.jpg" muted="" loop="" playsInline preload="none" aria-label="Video of a tiny apricot teddy bear puppy in the TeddyPups showroom"></video>
                         <button type="button" className="tp-clip__play" aria-pressed="false" aria-label="Play video">
                           <svg viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M8 5v14l11-7z" />

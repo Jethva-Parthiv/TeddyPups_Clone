@@ -21,6 +21,18 @@
       .tp-ribbon__track:before {
         inset: -0.6rem 1px auto 0 !important;
       }
+      body.has-open-modal, html.has-open-modal {
+        overflow: hidden !important;
+        height: 100% !important;
+        touch-action: none !important;
+      }
+      body.has-open-modal #site-header,
+      html.has-open-modal #site-header {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
     </style>
   </head>
   <body>
